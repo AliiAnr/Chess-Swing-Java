@@ -32,8 +32,6 @@ public class Input extends MouseAdapter {
                   board.makeMove(move);
                   board.selectedPiece = null;
               } else {
-                  // If the selected piece belongs to the opponent and it's not a valid move,
-                  // change the selected piece to the piece that was clicked
                   board.selectedPiece = pieceXY;
               }
           } else {
@@ -45,8 +43,6 @@ public class Input extends MouseAdapter {
               board.makeMove(move);
               board.selectedPiece = null;
           } else {
-              // Deselect the selected piece if the user clicks on an empty square that is not
-              // a valid move
               board.selectedPiece = null;
           }
       }
@@ -78,11 +74,10 @@ public class Input extends MouseAdapter {
 
       if (board.selectedPiece != null) {
           Move move = new Move(board, board.selectedPiece, col, row);
-          if (board.isValidMove(move) && board.selectedPiece.isWhite == board.isWhitesTurn) {
+          if (board.isValidMove(move) && board.selectedPiece.isWhite == board.isWhitesTurn && board.getPromotionPending() == false) {
               board.makeMove(move);
               board.selectedPiece = null;
           } else {
-              // Return the piece to its original position
               board.selectedPiece.xPos = board.selectedPiece.col * board.titleSize;
               board.selectedPiece.yPos = board.selectedPiece.row * board.titleSize;
           }
