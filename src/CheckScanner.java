@@ -105,7 +105,7 @@ public class CheckScanner {
 
    private boolean isCheckByPawn(int col, int row, Pieces king, int kingCol, int kingRow) {
       int colorVal = king.isWhite ? -1 : 1;
-      return pawnCheck(board.getPiece(kingCol + 1, kingRow + colorVal), king, col, row) ||
+      return pawnCheck(board.getPiece(kingCol - 1, kingRow + colorVal), king, col, row) ||
             pawnCheck(board.getPiece(kingCol + 1, kingRow + colorVal), king, col, row);
 
    }

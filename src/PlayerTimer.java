@@ -23,7 +23,7 @@ public class PlayerTimer extends JLabel implements Runnable {
       } catch (FontFormatException | IOException e) {
          e.printStackTrace();
       }
-      this.setFont(poppinsFontBold.deriveFont(30f));
+      this.setFont(poppinsFontBold.deriveFont(35f));
       this.setText(getTime());
       timerThread = new Thread(this);
       timerThread.start();

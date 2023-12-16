@@ -1,14 +1,12 @@
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 import java.awt.*;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.awt.event.*;
-import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 
 public class ChessBoard extends JPanel {
    public int titleSize = 101;
@@ -31,8 +29,7 @@ public class ChessBoard extends JPanel {
    public PlayerTimer whiteTimer;
    public PlayerTimer blackTimer;
 
-   private boolean isWhiteRun = false;
-   private boolean isBlackRun = false;
+   private boolean promotionPending = false;
 
    public ChessBoard() {
       this.setPreferredSize(new Dimension(titleSize * cols, titleSize * rows));
@@ -63,8 +60,12 @@ public class ChessBoard extends JPanel {
       return null;
    }
 
+   public boolean getPromotionPending() {
+      return promotionPending;
+   }
+
    public void makeMove(Move move) {
-      if (move.getPiece().isWhite == isWhitesTurn) {
+      if (move.getPiece().isWhite == isWhitesTurn && !promotionPending) {
 
          if (move.getPiece().name.equals("Pawn")) {
             movePawn(move);
@@ -80,7 +81,9 @@ public class ChessBoard extends JPanel {
 
          capture(move);
          isWhitesTurn = !isWhitesTurn;
-         switchTurn();
+         if (!promotionPending) {
+            switchTurn();
+         }
       }
 
    }
@@ -123,49 +126,100 @@ public class ChessBoard extends JPanel {
    }
 
    private void promotionPawn(Move move) {
-      JFrame frame = new JFrame("Pawn Promotion");
+      promotionPending = true;
+      JFrame frame = new JFrame();
+      frame.setUndecorated(true);
+      BufferedImage transparentImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+      frame.setIconImage(transparentImage);
+      frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+      // frame.setLocationRelativeTo(this);
       JPanel panel = new JPanel();
-      
+
       String color = move.getPiece().isWhite ? "white" : "black";
-      JButton queenButton = new JButton(new ImageIcon("image/" + color + "_queen.png"));
+      Color backgroundColor = move.getPiece().isWhite ? Color.decode("#565352") : Color.decode("#f8f8f8");
+      panel.setBackground(backgroundColor);
+
+      JButton queenButton = createButton("image/" + color + "_queen.png", move);
       queenButton.addActionListener(e -> {
          pieces.remove(move.getPiece());
          pieces.add(new Queen(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
          frame.dispose();
+         promotionPending = false;
+         switchTurn();
          repaint();
       });
       panel.add(queenButton);
-      
-      JButton rookButton = new JButton(new ImageIcon("image/" + color + "_rook.png"));
+
+      JButton rookButton = createButton("image/" + color + "_rook.png", move);
       rookButton.addActionListener(e -> {
          pieces.remove(move.getPiece());
          pieces.add(new Rook(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
          frame.dispose();
+         promotionPending = false;
+         switchTurn();
          repaint();
       });
       panel.add(rookButton);
 
-      JButton bishopButton = new JButton(new ImageIcon("image/" + color + "_bishop.png"));
+      JButton bishopButton = createButton("image/" + color + "_bishop.png", move);
       bishopButton.addActionListener(e -> {
          pieces.remove(move.getPiece());
          pieces.add(new Bishop(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
          frame.dispose();
+         promotionPending = false;
+         switchTurn();
          repaint();
       });
       panel.add(bishopButton);
 
-      JButton knightButton = new JButton(new ImageIcon("image/" + color + "_knight.png"));
+      JButton knightButton = createButton("image/" + color + "_knight.png", move);
       knightButton.addActionListener(e -> {
          pieces.remove(move.getPiece());
          pieces.add(new Knight(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
          frame.dispose();
+         promotionPending = false;
+         switchTurn();
          repaint();
       });
       panel.add(knightButton);
+
       frame.add(panel);
-      
+
       frame.pack();
+      frame.setLocation(362,470);
+      frame.setResizable(false);
       frame.setVisible(true);
+   }
+
+   private static JButton createButton(String imagePath, Move move) {
+      JButton button = new JButton(new ImageIcon(imagePath));
+      button.setOpaque(false);
+      button.setContentAreaFilled(false);
+      button.setBorder(null);
+
+      button.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseEntered(MouseEvent e) {
+            button.setContentAreaFilled(true);
+            if (!move.getPiece().isWhite) {
+               button.setBackground(Color.decode("#565352"));
+            } else {
+               button.setBackground(Color.decode("#f8f8f8"));
+
+            }
+
+            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+         }
+
+         @Override
+         public void mouseExited(MouseEvent e) {
+            button.setContentAreaFilled(false);
+            button.setForeground(null);
+            button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+         }
+      });
+
+      return button;
    }
    
    public void capture(Move move) {
@@ -251,7 +305,7 @@ public class ChessBoard extends JPanel {
       }
 
       // make highlights
-      if (selectedPiece != null && selectedPiece.isWhite == isWhitesTurn) {
+      if (selectedPiece != null && selectedPiece.isWhite == isWhitesTurn && !promotionPending) {
          for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                if (isValidMove(new Move(this, selectedPiece, col, row))) {
@@ -264,7 +318,7 @@ public class ChessBoard extends JPanel {
                   // Check if there's a piece that can be captured at this position
                   Pieces pieceAtPosition = getPieceAtPosition(col, row);
                   if (pieceAtPosition != null && pieceAtPosition.isWhite != selectedPiece.isWhite) {
-                     int circleSize = 93; // Adjust this value to change the size of the circle
+                     int circleSize = 94; // Adjust this value to change the size of the circle
                      g2d.setColor(new Color(119, 116, 116, 90));
                      float strokeWidth = 7.0f; // Adjust this value to change the border weight
                      g2d.setStroke(new BasicStroke(strokeWidth));
