@@ -1,14 +1,17 @@
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.*;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.awt.event.*;
 import java.awt.event.MouseListener;
 
 public class ChessBoard extends JPanel {
-   public int titleSize = 105;
+   public int titleSize = 101;
 
    int cols = 8;
    int rows = 8;
@@ -120,10 +123,51 @@ public class ChessBoard extends JPanel {
    }
 
    private void promotionPawn(Move move) {
-      pieces.remove(move.getPiece());
-      pieces.add(new Queen(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
-   }
+      JFrame frame = new JFrame("Pawn Promotion");
+      JPanel panel = new JPanel();
+      
+      String color = move.getPiece().isWhite ? "white" : "black";
+      JButton queenButton = new JButton(new ImageIcon("image/" + color + "_queen.png"));
+      queenButton.addActionListener(e -> {
+         pieces.remove(move.getPiece());
+         pieces.add(new Queen(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
+         frame.dispose();
+         repaint();
+      });
+      panel.add(queenButton);
+      
+      JButton rookButton = new JButton(new ImageIcon("image/" + color + "_rook.png"));
+      rookButton.addActionListener(e -> {
+         pieces.remove(move.getPiece());
+         pieces.add(new Rook(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
+         frame.dispose();
+         repaint();
+      });
+      panel.add(rookButton);
 
+      JButton bishopButton = new JButton(new ImageIcon("image/" + color + "_bishop.png"));
+      bishopButton.addActionListener(e -> {
+         pieces.remove(move.getPiece());
+         pieces.add(new Bishop(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
+         frame.dispose();
+         repaint();
+      });
+      panel.add(bishopButton);
+
+      JButton knightButton = new JButton(new ImageIcon("image/" + color + "_knight.png"));
+      knightButton.addActionListener(e -> {
+         pieces.remove(move.getPiece());
+         pieces.add(new Knight(this, move.getNewCol(), move.getNewRow(), move.getPiece().isWhite));
+         frame.dispose();
+         repaint();
+      });
+      panel.add(knightButton);
+      frame.add(panel);
+      
+      frame.pack();
+      frame.setVisible(true);
+   }
+   
    public void capture(Move move) {
       pieces.remove(move.getCapture());
    }
@@ -220,7 +264,7 @@ public class ChessBoard extends JPanel {
                   // Check if there's a piece that can be captured at this position
                   Pieces pieceAtPosition = getPieceAtPosition(col, row);
                   if (pieceAtPosition != null && pieceAtPosition.isWhite != selectedPiece.isWhite) {
-                     int circleSize = 97; // Adjust this value to change the size of the circle
+                     int circleSize = 93; // Adjust this value to change the size of the circle
                      g2d.setColor(new Color(119, 116, 116, 90));
                      float strokeWidth = 7.0f; // Adjust this value to change the border weight
                      g2d.setStroke(new BasicStroke(strokeWidth));
