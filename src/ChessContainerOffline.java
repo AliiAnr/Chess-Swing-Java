@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Flow;
 
-public class ChessContainer extends JFrame {
+public class ChessContainerOffline extends JFrame {
 
-   ChessContainer() {
+   ChessContainerOffline() {
       Font poppinsFont = null;
       Font poppinsFontBold = null;
       try {
@@ -107,12 +107,13 @@ public class ChessContainer extends JFrame {
 
       rightPanel.setPreferredSize(new Dimension(500, 970));
       rightPanel.setBackground(Color.decode("#262522"));
+      rightPanel.setLayout(new GridBagLayout());
       JPanel resignPanel = new JPanel();
-      resignPanel.setPreferredSize(new Dimension(450, 57));
+      resignPanel.setPreferredSize(new Dimension(450, 70));
       resignPanel.setBackground(Color.decode("#262522"));
       resignPanel.setLayout(new GridBagLayout());
       JPanel drawPanel = new JPanel();
-      drawPanel.setPreferredSize(new Dimension(450, 57));
+      drawPanel.setPreferredSize(new Dimension(450, 70));
       drawPanel.setBackground(Color.decode("#262522"));
       drawPanel.setLayout(new GridBagLayout());
 
@@ -131,20 +132,14 @@ public class ChessContainer extends JFrame {
       drawPanel.add(drawButton);
       
       JPanel innerPanel = new JPanel();
-      innerPanel.setPreferredSize(new Dimension(450, 170));
+      innerPanel.setLayout(new FlowLayout());
+      innerPanel.setPreferredSize(new Dimension(430, 215));
       innerPanel.setBackground(Color.decode("#262522"));
-      innerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
       
       innerPanel.add(resignPanel);
       innerPanel.add(drawPanel);
       
-      JPanel userPanel = new JPanel();
-      userPanel.setPreferredSize(new Dimension(420, 760));
-      userPanel.setBackground(Color.decode("#302e2b"));
-      
       rightPanel.add(innerPanel);
-      rightPanel.add(userPanel);
-      
 
       leftPanel.setPreferredSize(new Dimension(820, 970));
       leftPanel.setBackground(Color.decode("#302e2b"));
