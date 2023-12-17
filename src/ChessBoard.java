@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
-public class ChessBoard extends JPanel {
+public class ChessBoard extends JPanel implements InterfaceAdd{
    public int titleSize = 101;
 
    int cols = 8;
@@ -266,7 +266,7 @@ public class ChessBoard extends JPanel {
       }
       return null;
    }
-
+   @Override
    public void addPieces() {
       pieces.add(new Knight(this, 1, 0, false));
       pieces.add(new Knight(this, 6, 0, false));
