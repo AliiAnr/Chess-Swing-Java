@@ -2,7 +2,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.File;
 import java.io.IOException;
-
+import java.awt.Color;
 import javax.swing.JLabel;
 
 public class PlayerTimer extends JLabel implements Runnable {
@@ -24,6 +24,7 @@ public class PlayerTimer extends JLabel implements Runnable {
          e.printStackTrace();
       }
       this.setFont(poppinsFontBold.deriveFont(35f));
+      this.setForeground(Color.decode("#82817f"));
       this.setText(getTime());
       timerThread = new Thread(this);
       timerThread.start();
