@@ -39,6 +39,11 @@ public class Choose extends JFrame {
       drawPanel.setBackground(Color.decode("#262522"));
       drawPanel.setLayout(new GridBagLayout());
 
+      JLabel labellogin = new JLabel("Login");
+      labellogin.setPreferredSize(new Dimension(420, 55));
+
+
+
       RoundedButton resignButton = createButton("Play", 15, 1);
       resignButton.setFont(poppinsFontBold.deriveFont(20f));
       resignButton.setPreferredSize(new Dimension(420, 55));
@@ -112,5 +117,6 @@ public class Choose extends JFrame {
 
       return button;
    }
+
 
 }
