@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
-public class Pieces {
+public class Pieces extends AbstractPieces{
 
    public int col, row;
    public int xPos, yPos;
@@ -30,10 +30,6 @@ public class Pieces {
 
    public boolean isValidMovement(int col, int row) {
       return true;
-   }
-
-   public boolean moveCollidesWithPiece(int col, int row) {
-      return false;
    }
 
    public void draw(Graphics2D g2d) {
