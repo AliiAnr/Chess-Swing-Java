@@ -48,7 +48,7 @@ public class ChessContainer extends JFrame {
       namePanel.setBackground(Color.decode("#302e2b"));
       namePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
 
-      JLabel nameLabel = new JLabel("Ali Gantengaaaa");
+      JLabel nameLabel = new JLabel("Ali Gantengaaaa (402)");
       nameLabel.setFont(poppinsFontBold.deriveFont(20f));
       nameLabel.setForeground(Color.decode("#f8f8f8"));
       nameLabel.setPreferredSize(new Dimension(600, 25));
@@ -86,7 +86,7 @@ public class ChessContainer extends JFrame {
       namePanel2.setBackground(Color.decode("#302e2b"));
       namePanel2.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
 
-      JLabel nameLabel2 = new JLabel("Ali Gantengaaaa");
+      JLabel nameLabel2 = new JLabel("Gita Mailand (200)");
       nameLabel2.setFont(poppinsFontBold.deriveFont(20f));
       nameLabel2.setForeground(Color.decode("#f8f8f8"));
       nameLabel2.setPreferredSize(new Dimension(600, 25));
@@ -141,6 +141,78 @@ public class ChessContainer extends JFrame {
       JPanel userPanel = new JPanel();
       userPanel.setPreferredSize(new Dimension(420, 760));
       userPanel.setBackground(Color.decode("#302e2b"));
+      userPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+      
+            String imagePath1 = "image/black_king.png";
+      ImageIcon icon1 = new ImageIcon(
+            new ImageIcon(imagePath1).getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
+      JLabel imageLabelUser1 = new JLabel(icon1);
+      JPanel imagePanelUser1 = new JPanel();
+      imagePanelUser1.add(imageLabelUser1);
+      imagePanelUser1.setPreferredSize(new Dimension(40, 40));
+      imagePanelUser1.setBackground(Color.decode("#262522"));
+      imagePanelUser1.setLayout(new GridBagLayout());
+
+      JPanel namePanelUser1 = new JPanel();
+      namePanelUser1.setPreferredSize(new Dimension(300, 30));
+      namePanelUser1.setBackground(Color.decode("#302e2b"));
+      namePanelUser1.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
+
+      JLabel nameLabelUser1 = new JLabel("Ali Gantengaaaa (402)");
+      nameLabelUser1.setFont(poppinsFontBold.deriveFont(15f));
+      nameLabelUser1.setForeground(Color.decode("#f8f8f8"));
+      nameLabelUser1.setPreferredSize(new Dimension(410, 25));
+
+      nameLabelUser1.setBackground(Color.decode("#302e2b"));
+      nameLabelUser1.setOpaque(true);
+      namePanelUser1.add(nameLabelUser1);
+      
+      JPanel listUser1 = new JPanel();
+      listUser1.setPreferredSize(new Dimension(420, 62));
+      listUser1.setBackground(Color.decode("#302e2b"));
+      listUser1.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+      listUser1.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#eaeaea")));
+      
+      listUser1.add(imagePanelUser1);
+      listUser1.add(namePanelUser1);
+      
+            String imagePath2 = "image/white_king.png";
+      ImageIcon icon2 = new ImageIcon(
+            new ImageIcon(imagePath2).getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
+      JLabel imageLabelUser2 = new JLabel(icon2);
+      JPanel imagePanelUser2 = new JPanel();
+      imagePanelUser2.add(imageLabelUser2);
+      imagePanelUser2.setPreferredSize(new Dimension(40, 40));
+      imagePanelUser2.setBackground(Color.decode("#262522"));
+      imagePanelUser2.setLayout(new GridBagLayout());
+
+      JPanel namePanelUser2 = new JPanel();
+      namePanelUser2.setPreferredSize(new Dimension(300, 30));
+      namePanelUser2.setBackground(Color.decode("#302e2b"));
+      namePanelUser2.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
+
+      JLabel nameLabelUser2 = new JLabel("Gita Mailand (200)");
+      nameLabelUser2.setFont(poppinsFontBold.deriveFont(15f));
+      nameLabelUser2.setForeground(Color.decode("#f8f8f8"));
+      nameLabelUser2.setPreferredSize(new Dimension(410, 25));
+
+      nameLabelUser2.setBackground(Color.decode("#302e2b"));
+      nameLabelUser2.setOpaque(true);
+      namePanelUser2.add(nameLabelUser2);
+      
+      JPanel listUser2 = new JPanel();
+      listUser2.setPreferredSize(new Dimension(420, 62));
+      listUser2.setBackground(Color.decode("#302e2b"));
+      listUser2.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+      listUser2.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#eaeaea")));
+      
+      listUser2.add(imagePanelUser2);
+      listUser2.add(namePanelUser2);
+      
+      
+      
+      userPanel.add(listUser1);
+      userPanel.add(listUser2);
       
       rightPanel.add(innerPanel);
       rightPanel.add(userPanel);
