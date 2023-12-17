@@ -1,14 +1,21 @@
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+
 import java.awt.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
-public class ChessBoard extends JPanel implements InterfaceAdd{
+public class ChessBoard extends JPanel {
    public int titleSize = 101;
 
    int cols = 8;
@@ -186,7 +193,7 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
       frame.add(panel);
 
       frame.pack();
-      frame.setLocation(362,470);
+      frame.setLocation(387,470);
       frame.setResizable(false);
       frame.setVisible(true);
    }
@@ -266,7 +273,7 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
       }
       return null;
    }
-   @Override
+
    public void addPieces() {
       pieces.add(new Knight(this, 1, 0, false));
       pieces.add(new Knight(this, 6, 0, false));
