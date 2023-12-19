@@ -123,6 +123,14 @@ public class ChessContainerOffline extends JFrame {
       resignButton.setBackground(Color.decode("#42413f"));
       resignButton.setForeground(Color.WHITE);
       resignPanel.add(resignButton);
+      
+      resignButton.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            chessBoard.askResign(chessBoard.isWhitesTurn);
+            
+         }
+      });
 
       RoundedButton drawButton = createButton("Draw", 15, 2);
       drawButton.setFont(poppinsFontBold.deriveFont(20f));
@@ -130,6 +138,14 @@ public class ChessContainerOffline extends JFrame {
       drawButton.setBackground(Color.decode("#7ec139"));
       drawButton.setForeground(Color.WHITE);
       drawPanel.add(drawButton);
+      
+      drawButton.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            chessBoard.askDraw(chessBoard.isWhitesTurn);
+            
+         }
+      });
       
       JPanel innerPanel = new JPanel();
       innerPanel.setLayout(new FlowLayout());
@@ -196,6 +212,10 @@ public class ChessContainerOffline extends JFrame {
       });
 
       return button;
+   }
+   public void reFrame() {
+      this.dispose();
+      new ChessContainerOffline();
    }
 
 }

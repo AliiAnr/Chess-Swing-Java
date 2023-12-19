@@ -13,9 +13,10 @@ import java.util.concurrent.Flow;
 
 public class Choose extends JFrame {
 
+   Font poppinsFont = null;
+   Font poppinsFontBold = null;
+
    Choose() {
-      Font poppinsFont = null;
-      Font poppinsFontBold = null;
       try {
          poppinsFont = Font.createFont(Font.TRUETYPE_FONT,
                new File("Fontz\\Poppins-Regular.ttf"));
@@ -45,6 +46,13 @@ public class Choose extends JFrame {
       resignButton.setBackground(Color.decode("#42413f"));
       resignButton.setForeground(Color.WHITE);
       resignPanel.add(resignButton);
+      // resignButton.addActionListener(new ActionListener() {
+      // @Override
+      // public void actionPerformed(ActionEvent e) {
+      // new ChessContainerOffline();
+      // dispose();
+      // }
+      // });
 
       RoundedButton drawButton = createButton("Play with Friends", 15, 2);
       drawButton.setFont(poppinsFontBold.deriveFont(20f));
@@ -52,15 +60,23 @@ public class Choose extends JFrame {
       drawButton.setBackground(Color.decode("#7ec139"));
       drawButton.setForeground(Color.WHITE);
       drawPanel.add(drawButton);
-      
+      drawButton.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            new PlayChoose();
+            dispose();
+            repaint();
+         }
+      });
+
       JPanel innerPanel = new JPanel();
       innerPanel.setPreferredSize(new Dimension(450, 170));
       innerPanel.setBackground(Color.decode("#262522"));
       innerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
-      
+
       innerPanel.add(resignPanel);
       innerPanel.add(drawPanel);
-      
+
       rightPanel.add(innerPanel);
 
       panel.setPreferredSize(new Dimension(1325, 900));
@@ -89,9 +105,9 @@ public class Choose extends JFrame {
          public void mouseEntered(MouseEvent e) {
             if (number == 1) {
                button.setBackground(Color.decode("#494846")); // Ubah warna teks saat hover
-               
-            }else if (number == 2) {
-               
+
+            } else if (number == 2) {
+
                button.setBackground(Color.decode("#90c05e")); // Ubah warna teks saat hover
             }
             button.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -101,9 +117,9 @@ public class Choose extends JFrame {
          public void mouseExited(MouseEvent e) {
             if (number == 1) {
                button.setBackground(Color.decode("#42413f"));
-               
-            }else if (number == 2) {
-               
+
+            } else if (number == 2) {
+
                button.setBackground(Color.decode("#7ec139"));
             }
             button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));

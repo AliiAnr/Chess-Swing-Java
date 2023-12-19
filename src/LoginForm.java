@@ -91,7 +91,9 @@ public class LoginForm extends JFrame {
                 if (user != null) {
                     JOptionPane.showMessageDialog(LoginForm.this, "Login Berhasil!");
                     dispose();
+                    UserAPI.setUserName(username);
                     Choose chose = new Choose();
+                    
                 } else {
                     JOptionPane.showMessageDialog(LoginForm.this, "Username & password salah", password, JOptionPane.ERROR_MESSAGE);
                 }

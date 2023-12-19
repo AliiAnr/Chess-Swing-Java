@@ -9,13 +9,21 @@ import java.awt.event.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.concurrent.Flow;
 
 public class ChessContainer extends JFrame {
+   Font poppinsFont = null;
+   Font poppinsFontBold = null;
+
+   
 
    ChessContainer() {
-      Font poppinsFont = null;
-      Font poppinsFontBold = null;
+      
+
       try {
          poppinsFont = Font.createFont(Font.TRUETYPE_FONT,
                new File("Fontz\\Poppins-Regular.ttf"));
@@ -25,6 +33,7 @@ public class ChessContainer extends JFrame {
          e.printStackTrace();
       }
       JPanel panel = new JPanel();
+      JPanel userPanel = new JPanel();
       JPanel rightPanel = new JPanel();
       JPanel leftPanel = new JPanel();
       ChessBoard chessBoard = new ChessBoard();
@@ -48,7 +57,7 @@ public class ChessContainer extends JFrame {
       namePanel.setBackground(Color.decode("#302e2b"));
       namePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
 
-      JLabel nameLabel = new JLabel("Ali Gantengaaaa (402)");
+      JLabel nameLabel = new JLabel(UserAPI.getOpponentName() + "  (" + UserAPI.getOpponentScore() + ")");
       nameLabel.setFont(poppinsFontBold.deriveFont(20f));
       nameLabel.setForeground(Color.decode("#f8f8f8"));
       nameLabel.setPreferredSize(new Dimension(600, 25));
@@ -86,7 +95,7 @@ public class ChessContainer extends JFrame {
       namePanel2.setBackground(Color.decode("#302e2b"));
       namePanel2.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
 
-      JLabel nameLabel2 = new JLabel("Gita Mailand (200)");
+      JLabel nameLabel2 = new JLabel(UserAPI.getUserName() + "  (" + UserAPI.getUserScore() + ")");
       nameLabel2.setFont(poppinsFontBold.deriveFont(20f));
       nameLabel2.setForeground(Color.decode("#f8f8f8"));
       nameLabel2.setPreferredSize(new Dimension(600, 25));
@@ -122,6 +131,13 @@ public class ChessContainer extends JFrame {
       resignButton.setBackground(Color.decode("#42413f"));
       resignButton.setForeground(Color.WHITE);
       resignPanel.add(resignButton);
+      resignButton.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            chessBoard.askResign(chessBoard.isWhitesTurn);
+
+         }
+      });
 
       RoundedButton drawButton = createButton("Draw", 15, 2);
       drawButton.setFont(poppinsFontBold.deriveFont(20f));
@@ -129,94 +145,55 @@ public class ChessContainer extends JFrame {
       drawButton.setBackground(Color.decode("#7ec139"));
       drawButton.setForeground(Color.WHITE);
       drawPanel.add(drawButton);
-      
+      drawButton.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+            chessBoard.askDraw(chessBoard.isWhitesTurn);
+
+         }
+      });
+
       JPanel innerPanel = new JPanel();
       innerPanel.setPreferredSize(new Dimension(450, 170));
       innerPanel.setBackground(Color.decode("#262522"));
       innerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
-      
+
       innerPanel.add(resignPanel);
       innerPanel.add(drawPanel);
-      
-      JPanel userPanel = new JPanel();
+
+      final String DB_URL = "jdbc:mysql://localhost:3306/chessapp";
+      final String USERNAME = "root";
+      final String PASSWORD = "";
+      try {
+         Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+
+         String sql = "SELECT * FROM user ORDER BY score DESC";
+         PreparedStatement pstmt = conn.prepareStatement(sql);
+
+         ResultSet resultSet = pstmt.executeQuery();
+
+         while (resultSet.next()) {
+            String userna = resultSet.getString("username");
+            int scoreDb = resultSet.getInt("score");
+
+            // Create user list for each user
+            JPanel userList = createUserList(userna, scoreDb);
+            userPanel.add(userList);
+         }
+
+         pstmt.close();
+         conn.close();
+
+      } catch (Exception e) {
+         System.err.println("Database connection error");
+      }
+
       userPanel.setPreferredSize(new Dimension(420, 760));
       userPanel.setBackground(Color.decode("#302e2b"));
       userPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-      
-            String imagePath1 = "image/black_king.png";
-      ImageIcon icon1 = new ImageIcon(
-            new ImageIcon(imagePath1).getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-      JLabel imageLabelUser1 = new JLabel(icon1);
-      JPanel imagePanelUser1 = new JPanel();
-      imagePanelUser1.add(imageLabelUser1);
-      imagePanelUser1.setPreferredSize(new Dimension(40, 40));
-      imagePanelUser1.setBackground(Color.decode("#262522"));
-      imagePanelUser1.setLayout(new GridBagLayout());
 
-      JPanel namePanelUser1 = new JPanel();
-      namePanelUser1.setPreferredSize(new Dimension(300, 30));
-      namePanelUser1.setBackground(Color.decode("#302e2b"));
-      namePanelUser1.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
-
-      JLabel nameLabelUser1 = new JLabel("Ali Gantengaaaa (402)");
-      nameLabelUser1.setFont(poppinsFontBold.deriveFont(15f));
-      nameLabelUser1.setForeground(Color.decode("#f8f8f8"));
-      nameLabelUser1.setPreferredSize(new Dimension(410, 25));
-
-      nameLabelUser1.setBackground(Color.decode("#302e2b"));
-      nameLabelUser1.setOpaque(true);
-      namePanelUser1.add(nameLabelUser1);
-      
-      JPanel listUser1 = new JPanel();
-      listUser1.setPreferredSize(new Dimension(420, 62));
-      listUser1.setBackground(Color.decode("#302e2b"));
-      listUser1.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-      listUser1.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#eaeaea")));
-      
-      listUser1.add(imagePanelUser1);
-      listUser1.add(namePanelUser1);
-      
-            String imagePath2 = "image/white_king.png";
-      ImageIcon icon2 = new ImageIcon(
-            new ImageIcon(imagePath2).getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-      JLabel imageLabelUser2 = new JLabel(icon2);
-      JPanel imagePanelUser2 = new JPanel();
-      imagePanelUser2.add(imageLabelUser2);
-      imagePanelUser2.setPreferredSize(new Dimension(40, 40));
-      imagePanelUser2.setBackground(Color.decode("#262522"));
-      imagePanelUser2.setLayout(new GridBagLayout());
-
-      JPanel namePanelUser2 = new JPanel();
-      namePanelUser2.setPreferredSize(new Dimension(300, 30));
-      namePanelUser2.setBackground(Color.decode("#302e2b"));
-      namePanelUser2.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
-
-      JLabel nameLabelUser2 = new JLabel("Gita Mailand (200)");
-      nameLabelUser2.setFont(poppinsFontBold.deriveFont(15f));
-      nameLabelUser2.setForeground(Color.decode("#f8f8f8"));
-      nameLabelUser2.setPreferredSize(new Dimension(410, 25));
-
-      nameLabelUser2.setBackground(Color.decode("#302e2b"));
-      nameLabelUser2.setOpaque(true);
-      namePanelUser2.add(nameLabelUser2);
-      
-      JPanel listUser2 = new JPanel();
-      listUser2.setPreferredSize(new Dimension(420, 62));
-      listUser2.setBackground(Color.decode("#302e2b"));
-      listUser2.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-      listUser2.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#eaeaea")));
-      
-      listUser2.add(imagePanelUser2);
-      listUser2.add(namePanelUser2);
-      
-      
-      
-      userPanel.add(listUser1);
-      userPanel.add(listUser2);
-      
       rightPanel.add(innerPanel);
       rightPanel.add(userPanel);
-      
 
       leftPanel.setPreferredSize(new Dimension(820, 970));
       leftPanel.setBackground(Color.decode("#302e2b"));
@@ -240,6 +217,47 @@ public class ChessContainer extends JFrame {
       this.setVisible(true);
    }
 
+   private JPanel createUserList(String username2, int score2) {
+      String imagePath1;
+      if (Math.random() < 0.5) {
+          imagePath1 = "image/black_king.png";
+      } else {
+          imagePath1 = "image/white_king.png";
+      }
+      ImageIcon icon1 = new ImageIcon(
+            new ImageIcon(imagePath1).getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
+      JLabel imageLabelUser1 = new JLabel(icon1);
+      JPanel imagePanelUser1 = new JPanel();
+      imagePanelUser1.add(imageLabelUser1);
+      imagePanelUser1.setPreferredSize(new Dimension(40, 40));
+      imagePanelUser1.setBackground(Color.decode("#262522"));
+      imagePanelUser1.setLayout(new GridBagLayout());
+
+      JPanel namePanelUser1 = new JPanel();
+      namePanelUser1.setPreferredSize(new Dimension(300, 30));
+      namePanelUser1.setBackground(Color.decode("#302e2b"));
+      namePanelUser1.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
+
+      JLabel nameLabelUser1 = new JLabel(username2 + "  (" + score2 + ")");
+      nameLabelUser1.setFont(poppinsFontBold.deriveFont(15f));
+      nameLabelUser1.setForeground(Color.decode("#f8f8f8"));
+      nameLabelUser1.setPreferredSize(new Dimension(410, 25));
+
+      nameLabelUser1.setBackground(Color.decode("#302e2b"));
+      nameLabelUser1.setOpaque(true);
+      namePanelUser1.add(nameLabelUser1);
+
+      JPanel listUser1 = new JPanel();
+      listUser1.setPreferredSize(new Dimension(420, 62));
+      listUser1.setBackground(Color.decode("#302e2b"));
+      listUser1.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+      listUser1.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#f8f8f8")));
+
+      listUser1.add(imagePanelUser1);
+      listUser1.add(namePanelUser1);
+      return listUser1;
+   }
+
    private static RoundedButton createButton(String name, int cornerRadius, int number) {
       RoundedButton button = new RoundedButton(name, cornerRadius);
       button.setOpaque(false);
@@ -251,9 +269,9 @@ public class ChessContainer extends JFrame {
          public void mouseEntered(MouseEvent e) {
             if (number == 1) {
                button.setBackground(Color.decode("#494846")); // Ubah warna teks saat hover
-               
-            }else if (number == 2) {
-               
+
+            } else if (number == 2) {
+
                button.setBackground(Color.decode("#90c05e")); // Ubah warna teks saat hover
             }
             button.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -263,9 +281,9 @@ public class ChessContainer extends JFrame {
          public void mouseExited(MouseEvent e) {
             if (number == 1) {
                button.setBackground(Color.decode("#42413f"));
-               
-            }else if (number == 2) {
-               
+
+            } else if (number == 2) {
+
                button.setBackground(Color.decode("#7ec139"));
             }
             button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));

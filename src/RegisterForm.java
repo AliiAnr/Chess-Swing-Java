@@ -126,7 +126,7 @@ public class RegisterForm extends JFrame {
             }
 
             private boolean isUsernameExists(String username) {
-                final String DB_URL = "jdbc:mysql://localhost:3308/chessapp";
+                final String DB_URL = "jdbc:mysql://localhost:3306/chessapp";
                 final String USERNAME = "root";
                 final String PASSWORD = "";
 
@@ -162,10 +162,11 @@ public class RegisterForm extends JFrame {
 
                     try {
                         Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-                        String sql = "INSERT INTO user (username, password) VALUES (?, ?)";
+                        String sql = "INSERT INTO user (username, password, score) VALUES (?, ?, ?)";
                         PreparedStatement preparedStatement = conn.prepareStatement(sql);
                         preparedStatement.setString(1, username);
                         preparedStatement.setString(2, password);
+                        preparedStatement.setInt(3, 0);
 
                         int addedRows = preparedStatement.executeUpdate();
 

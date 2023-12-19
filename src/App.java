@@ -4,6 +4,6 @@ public class App {
         // ChessContainerOffline chessBoardOffline = new ChessContainerOffline();
         // Choose choose = new Choose();
         LoginForm login = new LoginForm();
-        login.initComponent(); 
+        login.initComponent();
     }
 }

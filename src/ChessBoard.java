@@ -3,6 +3,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
@@ -11,15 +13,23 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Flow;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
-public class ChessBoard extends JPanel implements InterfaceAdd{
+public class ChessBoard extends JPanel {
    public int titleSize = 101;
 
-   int cols = 8;
-   int rows = 8;
+   public int cols = 8;
+   public int rows = 8;
 
    ArrayList<Pieces> pieces = new ArrayList<Pieces>();
 
@@ -36,15 +46,32 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
    public PlayerTimer whiteTimer;
    public PlayerTimer blackTimer;
 
+   private int whiteScore = 0;
+   private int blackScore = 0;
+
    private boolean promotionPending = false;
+   private boolean gameOver = false;
+   Font poppinsFont = null;
+   Font poppinsFontBold = null;
 
    public ChessBoard() {
+      try {
+         poppinsFont = Font.createFont(Font.TRUETYPE_FONT,
+               new File("Fontz\\Poppins-Regular.ttf"));
+         poppinsFontBold = Font.createFont(Font.TRUETYPE_FONT,
+               new File("Fontz\\Poppins-Bold.ttf"));
+      } catch (FontFormatException | IOException e) {
+         e.printStackTrace();
+      }
       this.setPreferredSize(new Dimension(titleSize * cols, titleSize * rows));
       this.addMouseListener(input);
       this.addMouseMotionListener(input);
       addPieces();
-      this.whiteTimer = new PlayerTimer(3);
-      this.blackTimer = new PlayerTimer(3);
+      this.whiteTimer = new PlayerTimer(this, 1);
+      this.blackTimer = new PlayerTimer(this, 1);
+
+      this.whiteTimer.setOpponentTimer(blackTimer);
+      this.blackTimer.setOpponentTimer(whiteTimer);
       blackTimer.pauseTimer();
    }
 
@@ -56,6 +83,124 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
          this.blackTimer.pauseTimer();
          this.whiteTimer.resumeTimer();
       }
+   }
+
+   public void askResign(boolean isWhitesTurn) {
+      String whoAsk = isWhitesTurn ? "White" : "Black";
+
+      JFrame frame = new JFrame();
+      frame.setSize(500, 500);
+      frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+      frame.setLayout(new GridBagLayout());
+      frame.getContentPane().setBackground(Color.decode("#302e2b"));
+      frame.setResizable(false);
+
+      JPanel panel = new JPanel();
+      panel.setBackground(Color.decode("#262522"));
+      panel.setLayout(new GridBagLayout());
+      panel.setPreferredSize(new Dimension(420, 420));
+
+      JPanel innerPanel = new JPanel();
+      innerPanel.setBackground(Color.decode("#262522"));
+      innerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
+      innerPanel.setPreferredSize(new Dimension(400, 200));
+
+      JLabel label = new JLabel("Are You Sure " + whoAsk + " Want To Resign?", SwingConstants.CENTER);
+
+      label.setFont(poppinsFontBold.deriveFont(20f));
+      label.setForeground(Color.WHITE);
+
+      RoundedButton button = createButton("OK", 15, 2);
+      button.setFont(poppinsFontBold.deriveFont(20f));
+      button.setPreferredSize(new Dimension(400, 55));
+      button.setBackground(Color.decode("#7ec139"));
+      button.setForeground(Color.WHITE);
+
+      button.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+            frame.dispose();
+            handleGameEnd(!isWhitesTurn);
+
+            // JPanel chessBoardParentPanel = (JPanel) getParent();
+            // JPanel chessBoardParentParentPanel = (JPanel)
+            // chessBoardParentPanel.getParent();
+            // JFrame parentFrame = (JFrame)
+            // SwingUtilities.getWindowAncestor(chessBoardParentParentPanel);
+            // parentFrame.dispose();
+            // repaint();
+            // Close the frame
+         }
+      });
+
+      innerPanel.add(label);
+      innerPanel.add(button);
+      panel.add(innerPanel);
+      frame.add(panel);
+
+      // Make the frame visible
+      frame.setLocationRelativeTo(null);
+      frame.setVisible(true);
+   }
+
+   public void askDraw(boolean isWhitesTurn) {
+      String whoAsk = isWhitesTurn ? "White" : "Black";
+
+      JFrame frame = new JFrame();
+      frame.setSize(500, 500);
+      frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+      frame.setLayout(new GridBagLayout());
+      frame.getContentPane().setBackground(Color.decode("#302e2b"));
+      frame.setResizable(false);
+
+      JPanel panel = new JPanel();
+      panel.setBackground(Color.decode("#262522"));
+      panel.setLayout(new GridBagLayout());
+      panel.setPreferredSize(new Dimension(420, 420));
+
+      JPanel innerPanel = new JPanel();
+      innerPanel.setBackground(Color.decode("#262522"));
+      innerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
+      innerPanel.setPreferredSize(new Dimension(400, 200));
+
+      JLabel label = new JLabel(whoAsk + " Want to Draw", SwingConstants.CENTER);
+
+      label.setFont(poppinsFontBold.deriveFont(20f));
+      label.setForeground(Color.WHITE);
+
+      RoundedButton button = createButton("Aggree", 15, 2);
+      button.setFont(poppinsFontBold.deriveFont(20f));
+      button.setPreferredSize(new Dimension(400, 55));
+      button.setBackground(Color.decode("#7ec139"));
+      button.setForeground(Color.WHITE);
+
+      button.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            whiteTimer.pauseTimer();
+            blackTimer.pauseTimer();
+            frame.dispose();
+            // handleGameEnd(!isWhitesTurn);
+            handleGameDraw();
+
+            // JPanel chessBoardParentPanel = (JPanel) getParent();
+            // JPanel chessBoardParentParentPanel = (JPanel)
+            // chessBoardParentPanel.getParent();
+            // JFrame parentFrame = (JFrame)
+            // SwingUtilities.getWindowAncestor(chessBoardParentParentPanel);
+            // parentFrame.dispose();
+            // repaint();
+            // Close the frame
+         }
+      });
+
+      innerPanel.add(label);
+      innerPanel.add(button);
+      panel.add(innerPanel);
+      frame.add(panel);
+
+      // Make the frame visible
+      frame.setLocationRelativeTo(null);
+      frame.setVisible(true);
    }
 
    public Pieces getPiece(int col, int row) {
@@ -71,9 +216,12 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
       return promotionPending;
    }
 
-   public void makeMove(Move move) {
-      if (move.getPiece().isWhite == isWhitesTurn && !promotionPending) {
+   public boolean getGameOver() {
+      return gameOver;
+   }
 
+   public void makeMove(Move move) {
+      if (move.getPiece().isWhite == isWhitesTurn && !promotionPending && !gameOver) {
          if (move.getPiece().name.equals("Pawn")) {
             movePawn(move);
          } else if (move.getPiece().name.equals("King")) {
@@ -87,12 +235,115 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
          move.getPiece().isFirstMove = false;
 
          capture(move);
+
+         if (isMoveCheckingKing(move)) {
+            if (isWhitesTurn) {
+               handleTimeCheckMate();
+               System.out.println("White check!");
+            } else {
+               handleTimeCheckMate();
+               System.out.println("Black check!");
+            }
+
+            if (isCheckmate(!isWhitesTurn)) {
+               if (isWhitesTurn) {
+                  System.out.println("White checkmate!");
+               } else {
+                  System.out.println("Black checkmate!");
+               }
+            }
+         }
          isWhitesTurn = !isWhitesTurn;
-         if (!promotionPending) {
-            switchTurn();
+         switchTurn();
+      }
+   }
+
+   public boolean isCheckmate(boolean isWhite) {
+      // Find the king
+      Pieces king = findKing(isWhite);
+
+      // Check if the king has any safe squares to move to
+      for (int col = 0; col < cols; col++) {
+         for (int row = 0; row < rows; row++) {
+            Move move = new Move(this, king, col, row);
+            if (isValidMove(move) && !wouldBeInCheck(move)) {
+               return false;
+            }
          }
       }
 
+      // Create a copy of the pieces list
+      List<Pieces> piecesCopy = new ArrayList<>(pieces);
+
+      // Check if any piece can capture the attacking piece or block the check
+      for (Pieces piece : piecesCopy) {
+         if (piece.isWhite == isWhite) {
+            for (int col = 0; col < cols; col++) {
+               for (int row = 0; row < rows; row++) {
+                  Move move = new Move(this, piece, col, row);
+                  if (isValidMove(move) && !wouldBeInCheck(move)) {
+                     return false;
+                  }
+               }
+            }
+         }
+      }
+
+      // If the king is not in check, check if it will be in check no matter what move
+      // is made next
+      if (!isInCheck(king)) {
+         for (Pieces piece : piecesCopy) {
+            if (piece.isWhite != isWhite) {
+               for (int col = 0; col < cols; col++) {
+                  for (int row = 0; row < rows; row++) {
+                     Move move = new Move(this, piece, col, row);
+                     if (isValidMove(move) && !wouldBeInCheck(move)) {
+                        return false;
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+      // If no valid moves were found, it's a checkmate
+      return true;
+   }
+
+   public boolean wouldBeInCheck(Move move) {
+      // Save the current state
+      Pieces capturedPiece = null;
+      int oldCol = move.getPiece().col;
+      int oldRow = move.getPiece().row;
+
+      // Check if there is a piece at the destination
+      Pieces destinationPiece = getPiece(move.getNewCol(), move.getNewRow());
+      if (destinationPiece != null) {
+         // Temporarily remove the piece
+         pieces.remove(destinationPiece);
+         capturedPiece = destinationPiece;
+      }
+
+      // Simulate the move
+      move.getPiece().col = move.getNewCol();
+      move.getPiece().row = move.getNewRow();
+
+      // Find the king
+      Pieces king = findKing(move.getPiece().isWhite);
+
+      // Check if the king would be in check
+      boolean check = isInCheck(king);
+
+      // Revert the move
+      move.getPiece().col = oldCol;
+      move.getPiece().row = oldRow;
+
+      // If a piece was captured, put it back
+      if (capturedPiece != null) {
+         pieces.add(capturedPiece);
+      }
+
+      return check;
    }
 
    private void moveKing(Move move) {
@@ -129,6 +380,191 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
       if (move.getNewRow() == colorIndex) {
          promotionPawn(move);
       }
+
+   }
+
+   public boolean isMoveCheckingKing(Move move) {
+      // Get the color of the piece that just moved
+      boolean isWhite = move.getPiece().isWhite;
+
+      // Loop over all pieces
+      for (Pieces piece : pieces) {
+         // If the piece is a king and its color is different from the color of the piece
+         // that just moved
+         if (piece.name.equals("King") && piece.isWhite != isWhite) {
+            // If the king is in check, return true
+            if (isInCheck(piece)) {
+               return true;
+            }
+         }
+      }
+
+      // If no king is in check, return false
+      return false;
+   }
+
+   public boolean isInCheck(Pieces king) {
+      // Loop over all pieces
+      for (Pieces piece : pieces) {
+         // If the piece is of the opposite color
+         if (piece.isWhite != king.isWhite) {
+            // Create a move from the piece to the king
+            Move move = new Move(this, piece, king.col, king.row);
+            // If the move is valid, the king is in check
+            if (isValidMove(move)) {
+               return true;
+            }
+         }
+      }
+
+      // If no valid moves were found, the king is not in check
+      return false;
+   }
+
+   public void handleTimeOut() {
+      if (isWhitesTurn) {
+         handleGameEnd(false);
+      } else {
+         handleGameEnd(true);
+      }
+   }
+
+   public void handleTimeCheckMate() {
+      if (!isWhitesTurn) {
+         handleGameEnd(false);
+      } else {
+         handleGameEnd(true);
+      }
+   }
+
+   private void handleGameDraw() {
+
+      JFrame frame = new JFrame();
+      frame.setSize(500, 500);
+      frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+      frame.setLayout(new GridBagLayout());
+      frame.getContentPane().setBackground(Color.decode("#302e2b"));
+      frame.setResizable(false);
+
+      JPanel panel = new JPanel();
+      panel.setBackground(Color.decode("#262522"));
+      panel.setLayout(new GridBagLayout());
+      panel.setPreferredSize(new Dimension(420, 420));
+
+      JPanel innerPanel = new JPanel();
+      innerPanel.setBackground(Color.decode("#262522"));
+      innerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
+      innerPanel.setPreferredSize(new Dimension(400, 200));
+
+      JLabel label = new JLabel("Game Draw!", SwingConstants.CENTER);
+      label.setFont(poppinsFontBold.deriveFont(30f));
+      label.setForeground(Color.WHITE);
+
+      RoundedButton button = createButton("OK", 15, 2);
+      button.setFont(poppinsFontBold.deriveFont(20f));
+      button.setPreferredSize(new Dimension(400, 55));
+      button.setBackground(Color.decode("#7ec139"));
+      button.setForeground(Color.WHITE);
+
+      button.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+            // repaint();
+            // Close the frame
+            frame.dispose();
+            resetGame();
+         }
+      });
+
+      innerPanel.add(label);
+      innerPanel.add(button);
+      panel.add(innerPanel);
+      frame.add(panel);
+
+      // Make the frame visible
+      frame.setLocationRelativeTo(null);
+      frame.setVisible(true);
+   }
+
+   private void handleGameEnd(boolean whiteWins) {
+
+      String winner = whiteWins ? "White" : "Black";
+      if (whiteWins) {
+         UserAPI.setUserScore(UserAPI.getUserScore()+10);
+         UserAPI.setOpponentScore(UserAPI.getUserScore()-10);
+         updateScore(UserAPI.getUserScore(), UserAPI.getUserName());
+         updateScore(UserAPI.getOpponentScore(), UserAPI.getOpponentName());
+      }else{
+         UserAPI.setUserScore(UserAPI.getUserScore()-10);
+         UserAPI.setOpponentScore(UserAPI.getUserScore()+10);
+         updateScore(UserAPI.getUserScore(), UserAPI.getUserName());
+         updateScore(UserAPI.getOpponentScore(), UserAPI.getOpponentName());
+      }
+      System.out.println("Game Over! " + winner + " wins!");
+      JFrame frame = new JFrame();
+      frame.setSize(500, 500);
+      frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+      frame.setLayout(new GridBagLayout());
+      frame.getContentPane().setBackground(Color.decode("#302e2b"));
+      frame.setResizable(false);
+
+      JPanel panel = new JPanel();
+      panel.setBackground(Color.decode("#262522"));
+      panel.setLayout(new GridBagLayout());
+      panel.setPreferredSize(new Dimension(420, 420));
+
+      JPanel innerPanel = new JPanel();
+      innerPanel.setBackground(Color.decode("#262522"));
+      innerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
+      innerPanel.setPreferredSize(new Dimension(400, 200));
+
+      JLabel label = new JLabel("Game Over! " + winner + " wins!", SwingConstants.CENTER);
+      label.setFont(poppinsFontBold.deriveFont(30f));
+      label.setForeground(Color.WHITE);
+
+      RoundedButton button = createButton("OK", 15, 2);
+      button.setFont(poppinsFontBold.deriveFont(20f));
+      button.setPreferredSize(new Dimension(400, 55));
+      button.setBackground(Color.decode("#7ec139"));
+      button.setForeground(Color.WHITE);
+
+      button.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+            // repaint();
+            // Close the frame
+            frame.dispose();
+            resetGame();
+         }
+      });
+
+      innerPanel.add(label);
+      innerPanel.add(button);
+      panel.add(innerPanel);
+      frame.add(panel);
+
+      // Make the frame visible
+      frame.setLocationRelativeTo(null);
+      frame.setVisible(true);
+   }
+
+   public void resetGame() {
+      JPanel chessBoardParentPanel = (JPanel) getParent();
+      JPanel chessBoardParentParentPanel = (JPanel) chessBoardParentPanel.getParent();
+      JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(chessBoardParentParentPanel);
+
+      whiteTimer.pauseTimer();
+      blackTimer.pauseTimer();
+      Class<? extends JFrame> classTurunan = parentFrame.getClass();
+      parentFrame.dispose();
+      try {
+         JFrame frame = classTurunan.getDeclaredConstructor().newInstance();
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+
+      // parentFrame.re
+      // ChessContainerOffline test = new ChessContainerOffline();
 
    }
 
@@ -193,7 +629,7 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
       frame.add(panel);
 
       frame.pack();
-      frame.setLocation(387,470);
+      frame.setLocation(387, 470);
       frame.setResizable(false);
       frame.setVisible(true);
    }
@@ -228,12 +664,64 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
 
       return button;
    }
-   
+
+   private static RoundedButton createButton(String name, int cornerRadius, int number) {
+      RoundedButton button = new RoundedButton(name, cornerRadius);
+      button.setOpaque(false);
+      button.setFocusable(false);
+      button.setBorder(null);
+
+      button.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseEntered(MouseEvent e) {
+            if (number == 1) {
+               button.setBackground(Color.decode("#494846")); // Ubah warna teks saat hover
+
+            } else if (number == 2) {
+
+               button.setBackground(Color.decode("#90c05e")); // Ubah warna teks saat hover
+            }
+            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+         }
+
+         @Override
+         public void mouseExited(MouseEvent e) {
+            if (number == 1) {
+               button.setBackground(Color.decode("#42413f"));
+
+            } else if (number == 2) {
+
+               button.setBackground(Color.decode("#7ec139"));
+            }
+            button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+         }
+      });
+
+      return button;
+   }
+
    public void capture(Move move) {
-      pieces.remove(move.getCapture());
+      Pieces capturedPiece = move.getCapture();
+      if (capturedPiece != null) {
+         if (capturedPiece.isWhite) {
+            blackScore += capturedPiece.value;
+            System.out.println(blackScore);
+         } else {
+            whiteScore += capturedPiece.value;
+            System.out.println(whiteScore);
+         }
+         pieces.remove(capturedPiece);
+      }
    }
 
    public boolean isValidMove(Move move) {
+
+      int newRow = move.getNewRow();
+      int newCol = move.getNewCol();
+
+      if (newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols) {
+         return false;
+      }
 
       if (sameColor(move.getPiece(), move.getCapture())) {
          return false;
@@ -312,7 +800,7 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
       }
 
       // make highlights
-      if (selectedPiece != null && selectedPiece.isWhite == isWhitesTurn && !promotionPending) {
+      if (selectedPiece != null && selectedPiece.isWhite == isWhitesTurn && !promotionPending && !gameOver) {
          for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                if (isValidMove(new Move(this, selectedPiece, col, row))) {
@@ -361,5 +849,33 @@ public class ChessBoard extends JPanel implements InterfaceAdd{
          }
       }
       return null;
+   }
+
+   public void updateScore(int newScore, String username) {
+      final String DB_URL = "jdbc:mysql://localhost:3306/chessapp";
+      final String USERNAME = "root";
+      final String PASSWORD = "";
+      try {
+         Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+
+         String sql = "UPDATE user SET score = ? WHERE username = ?";
+         PreparedStatement pstmt = conn.prepareStatement(sql);
+         pstmt.setInt(1, newScore);
+         pstmt.setString(2, username);
+
+         int affectedRows = pstmt.executeUpdate();
+
+         if (affectedRows > 0) {
+            System.out.println("Score updated successfully.");
+         } else {
+            System.out.println("Update failed. User not found.");
+         }
+
+         pstmt.close();
+         conn.close();
+
+      } catch (Exception e) {
+         System.err.println("Database connection error: " + e.getMessage());
+      }
    }
 }
