@@ -10,9 +10,13 @@ public class PlayerTimer extends JLabel implements Runnable {
    private int seconds;
    private boolean isPaused = false;
    private final Object lock = new Object();
+   private ChessBoard board;
+   private PlayerTimer opponentTimer;
 
-   public PlayerTimer(int minutes) {
+   public PlayerTimer(ChessBoard board, int minutes){
       this.seconds = minutes * 60;
+      this.board = board;
+      this.opponentTimer = null;
       Font poppinsFont = null;
       Font poppinsFontBold = null;
       try {
@@ -50,6 +54,10 @@ public class PlayerTimer extends JLabel implements Runnable {
          seconds--;
          this.setText(getTime()); // Update the label text
       }
+      
+      opponentTimer.pauseTimer();
+      board.handleTimeOut();
+      //board.stopOpponentTimer();
    }
 
    public void pauseTimer() {
@@ -71,5 +79,9 @@ public class PlayerTimer extends JLabel implements Runnable {
 
    public boolean isRunning() {
       return !isPaused;
+   }
+   
+   public void setOpponentTimer(PlayerTimer opponentTimer) {
+      this.opponentTimer = opponentTimer;
    }
 }

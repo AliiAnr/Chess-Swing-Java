@@ -74,7 +74,7 @@ public class Input extends MouseAdapter {
 
       if (board.selectedPiece != null) {
           Move move = new Move(board, board.selectedPiece, col, row);
-          if (board.isValidMove(move) && board.selectedPiece.isWhite == board.isWhitesTurn && board.getPromotionPending() == false) {
+          if (board.isValidMove(move) && board.selectedPiece.isWhite == board.isWhitesTurn && board.getPromotionPending() == false && board.getGameOver() == false) {
               board.makeMove(move);
               board.selectedPiece = null;
           } else {

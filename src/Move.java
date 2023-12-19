@@ -15,6 +15,7 @@ public class Move {
       this.piece = piece;
       this.capture = board.getPiece(newcol, newrow);
    }
+   
     
    public void setOldCol(int oldcol) {
       this.oldcol = oldcol;
